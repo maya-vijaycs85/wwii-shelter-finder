@@ -1,7 +1,5 @@
 # 🇬🇧 WWII London Blitz Air Raid Shelter Finder (1940)
-
 **A Year 6 History & Computing Pair-Programming Project**
-
 
 > *"What if smartphone technology and GPS existed during World War 2?"*
 

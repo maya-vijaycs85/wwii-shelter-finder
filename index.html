@@ -75,16 +75,24 @@
           <h2 id="map-heading">1940s London Blitz Sector Map</h2>
           <p class="panel-subtitle">Click anywhere on the map (or choose a landmark below) to move your citizen pin and measure the route.</p>
         </div>
-        <div class="landmark-Select-wrap">
-          <label for="landmark-select">Jump to London Landmark:</label>
-          <select id="landmark-select">
-            <option value="st-pauls">St Paul’s Cathedral (City of London)</option>
-            <option value="westminster">Big Ben &amp; Westminster Bridge</option>
-            <option value="trafalgar">Trafalgar Square (West End)</option>
-            <option value="east-end">Bethnal Green &amp; East End Docks</option>
-            <option value="camden">Camden Town (North London)</option>
-            <option value="southbank">Waterloo &amp; South Bank</option>
-          </select>
+        <div class="map-controls-row">
+          <div class="landmark-select-wrap">
+            <label for="landmark-select">Jump to Landmark:</label>
+            <select id="landmark-select">
+              <option value="st-pauls">St Paul’s Cathedral (City of London)</option>
+              <option value="westminster">Big Ben &amp; Westminster Bridge</option>
+              <option value="trafalgar">Trafalgar Square (West End)</option>
+              <option value="east-end">Bethnal Green &amp; East End Docks</option>
+              <option value="camden">Camden Town (North London)</option>
+              <option value="southbank">Waterloo &amp; South Bank</option>
+            </select>
+          </div>
+          <button type="button" id="map-zoom-toggle" class="btn btn-zoom" aria-pressed="false">
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="btn-icon">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zm.5-7H9v2H7v1h2v2h1v-2h2V9h-2z" fill="currentColor"/>
+            </svg>
+            <span id="zoom-btn-label">Zoom In &amp; Pan</span>
+          </button>
         </div>
       </div>
 

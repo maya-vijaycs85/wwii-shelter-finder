@@ -374,6 +374,27 @@ body {
   min-block-size: 38px;
 }
 
+.map-controls-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-zoom {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  border: 2px solid var(--border-color);
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  min-block-size: 38px;
+}
+.btn-zoom[aria-pressed="true"] {
+  background-color: #ffcc00;
+  color: #1a0f0a;
+  border-color: #1a0f0a;
+}
+
 /* Map Frame and SVG */
 .map-frame {
   position: relative;
@@ -381,6 +402,17 @@ body {
   border-radius: 4px;
   background-color: var(--map-bg);
   overflow: hidden;
+}
+
+.map-frame.is-zoomed {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.map-frame.is-zoomed #london-map {
+  inline-size: 800px;
+  min-inline-size: 800px;
 }
 
 #london-map {
@@ -580,7 +612,6 @@ body {
 @keyframes nearest-glow {
   from { filter: drop-shadow(0 0 2px #ffcc00); }
   to { filter: drop-shadow(0 0 8px #ffcc00); }
-}
 }
 
 .type-tube .shelter-circle { fill: #003688; }
@@ -995,4 +1026,121 @@ dialog::backdrop {
   display: flex;
   justify-content: flex-end;
   margin-block-start: 20px;
+}
+
+/* ========================================================
+   Mobile Responsiveness Enhancements (Readable Map & Touch)
+   ======================================================== */
+@media (max-width: 650px) {
+  .app-layout {
+    padding: 8px 6px 30px;
+    gap: 16px;
+  }
+
+  .map-panel {
+    padding: 10px 8px;
+    border-width: 2px;
+  }
+
+  .panel-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .poster-header {
+    padding-block: 14px 16px;
+    padding-inline: 10px;
+  }
+
+  .poster-header h1 {
+    font-size: 1.55rem;
+  }
+
+  .poster-tagline {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+
+  .warden-toolbar .btn {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    min-block-size: 40px;
+  }
+
+  /* Make SVG map text significantly larger and readable on mobile screens */
+  .shelter-marker-label {
+    font-size: 14px;
+    font-weight: 800;
+    paint-order: stroke;
+    stroke: var(--bg-card);
+    stroke-width: 4px;
+  }
+
+  .shelter-circle {
+    r: 12;
+    stroke-width: 2.2;
+  }
+
+  .shelter-marker-group:hover .shelter-circle,
+  .shelter-marker-group:focus-visible .shelter-circle,
+  .shelter-marker-group.is-nearest .shelter-circle {
+    r: 16;
+    stroke-width: 4;
+  }
+
+  .district-labels text {
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .landmark-text {
+    font-size: 13px;
+    stroke-width: 3.5px;
+  }
+
+  .map-park-label {
+    font-size: 13px;
+  }
+
+  .river-label {
+    font-size: 15px;
+  }
+
+  .citizen-pin {
+    r: 12;
+  }
+  .citizen-pulse {
+    r: 16;
+  }
+  .citizen-label-text {
+    font-size: 11px;
+  }
+  .citizen-label-bg {
+    x: -54px;
+    y: -38px;
+    width: 108px;
+    height: 24px;
+  }
+
+  /* Compact 2-column Map Legend for phone screens */
+  .map-legend {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px 10px;
+    padding: 8px 10px;
+    font-size: 0.74rem;
+  }
+
+  .route-dashboard {
+    padding: 12px 10px;
+    gap: 12px;
+  }
+  .countdown-display {
+    font-size: 1.85rem;
+  }
+  .route-metrics {
+    gap: 8px;
+  }
+  .metric-box {
+    padding: 4px 8px;
+  }
 }

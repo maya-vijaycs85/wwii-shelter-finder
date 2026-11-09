@@ -614,6 +614,24 @@ document.addEventListener("DOMContentLoaded", () => {
     blackoutBtn.addEventListener("click", toggleBlackoutMode);
   }
 
+  // Map Zoom Toggle Button
+  const zoomBtn = document.getElementById("map-zoom-toggle");
+  const mapFrame = document.querySelector(".map-frame");
+  const zoomLabel = document.getElementById("zoom-btn-label");
+  if (zoomBtn && mapFrame) {
+    zoomBtn.addEventListener("click", () => {
+      const isZoomed = mapFrame.classList.toggle("is-zoomed");
+      zoomBtn.setAttribute("aria-pressed", isZoomed ? "true" : "false");
+      if (zoomLabel) {
+        zoomLabel.textContent = isZoomed ? "Fit to Screen" : "Zoom In & Pan";
+      }
+      if (isZoomed) {
+        // Center the view on citizen position
+        mapFrame.scrollLeft = Math.max(0, state.citizen.x - 180);
+      }
+    });
+  }
+
   // Landmark Jump Dropdown
   const landmarkSelect = document.getElementById("landmark-select");
   if (landmarkSelect) {
