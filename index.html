@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem("color-scheme") ?? "light dark";
+    } catch (e) {}
+  </script>
+  <title>ARP Shelter Warden | 1940 London Blitz Shelter Finder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link visually-hidden">Skip to main content</a>
+
+  <header class="poster-header">
+    <div class="poster-header-inner">
+      <div class="ministry-crest">
+        <svg aria-hidden="true" viewBox="0 0 64 48" class="crown-icon">
+          <path d="M8 38h48v4H8v-4zm4-6L6 16l14 8 12-16 12 16 14-8-6 16H12zm20-26a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM6 12a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm52 0a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="currentColor"/>
+        </svg>
+        <p class="ministry-subtitle">MINISTRY OF HOME SECURITY &bull; AIR RAID PRECAUTIONS (A.R.P.)</p>
+      </div>
+
+      <h1 id="main-content" tabindex="-1">LONDON BLITZ SHELTER FINDER (1940)</h1>
+      <p class="poster-tagline">“KEEP CALM AND TAKE COVER” &mdash; LOCATE YOUR NEAREST AIR RAID SHELTER IMMEDIATELY</p>
+
+      <div class="warden-toolbar" role="group" aria-label="Wartime Emergency Controls">
+        <button type="button" id="find-nearest-btn" class="btn btn-emergency">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="btn-icon">
+            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"/>
+          </svg>
+          Find Nearest Shelter Now
+        </button>
+
+        <button type="button" id="siren-toggle-btn" class="btn btn-siren" aria-pressed="false">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="btn-icon">
+            <path d="M12 3a9 9 0 0 0-9 9v7h18v-7a9 9 0 0 0-9-9zm0 4a5 5 0 0 1 5 5v4H7v-4a5 5 0 0 1 5-5zm-4 14h8v2H8v-2z" fill="currentColor"/>
+          </svg>
+          <span id="siren-btn-text">Sound Air Raid Siren</span>
+        </button>
+
+        <button type="button" id="blackout-toggle-btn" class="btn btn-blackout">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="btn-icon">
+            <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z" fill="currentColor"/>
+          </svg>
+          <span class="theme-label-dark">Blackout Mode (Dim Screen)</span>
+          <span class="theme-label-light">Daylight Poster Mode</span>
+        </button>
+
+        <button type="button" id="project-guide-btn" class="btn btn-secondary">
+          <svg aria-hidden="true" viewBox="0 0 24 24" class="btn-icon">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z" fill="currentColor"/>
+          </svg>
+          How This App Works (Year 6 Project)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="raid-status-banner" class="status-banner" role="status" aria-live="polite">
+    <div class="status-banner-inner">
+      <span class="status-badge" id="status-badge">ALL CLEAR</span>
+      <p id="status-message">Skies over London are currently quiet. Click anywhere on the map to set your street position, or press <strong>Find Nearest Shelter Now</strong>.</p>
+    </div>
+  </div>
+
+  <main class="app-layout">
+    <!-- Left / Main Column: Interactive 1940s London Blitz Map & Route Calculator -->
+    <section class="map-panel" aria-labelledby="map-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="map-heading">1940s London Blitz Sector Map</h2>
+          <p class="panel-subtitle">Click anywhere on the map (or choose a landmark below) to move your citizen pin and measure the route.</p>
+        </div>
+        <div class="landmark-Select-wrap">
+          <label for="landmark-select">Jump to London Landmark:</label>
+          <select id="landmark-select">
+            <option value="st-pauls">St Paul’s Cathedral (City of London)</option>
+            <option value="westminster">Big Ben &amp; Westminster Bridge</option>
+            <option value="trafalgar">Trafalgar Square (West End)</option>
+            <option value="east-end">Bethnal Green &amp; East End Docks</option>
+            <option value="camden">Camden Town (North London)</option>
+            <option value="southbank">Waterloo &amp; South Bank</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Map of Wartime London -->
+      <div class="map-frame">
+        <svg id="london-map" role="img" aria-label="Interactive 1940s map of London showing the River Thames, streets, landmarks, your location pin, and wartime air raid shelters" viewBox="0 0 800 500">
+          <defs>
+            <pattern id="map-grid" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.22"/>
+            </pattern>
+            <radialGradient id="searchlight-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fff8b0" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#fff8b0" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Background & Sector Grid -->
+          <rect width="800" height="500" class="map-bg"/>
+          <rect width="800" height="500" fill="url(#map-grid)" class="map-grid-rect"/>
+
+          <!-- Royal Parks (Hyde Park, Regent's Park) -->
+          <rect x="45" y="40" width="130" height="75" rx="18" class="map-park"/>
+          <text x="110" y="80" class="map-park-label">REGENT’S PARK</text>
+
+          <rect x="35" y="210" width="145" height="95" rx="14" class="map-park"/>
+          <text x="108" y="262" class="map-park-label">HYDE PARK</text>
+
+          <!-- Major 1940s London Roads -->
+          <g class="map-roads" aria-hidden="true">
+            <path d="M 0 180 L 320 215 L 540 210 L 800 175"/>
+            <path d="M 190 0 L 250 215 L 265 340 L 290 500"/>
+            <path d="M 450 0 L 445 215 L 470 365 L 510 500"/>
+            <path d="M 640 0 L 615 190 L 640 330 L 690 500"/>
+            <path d="M 80 390 L 360 395 L 620 420 L 800 410"/>
+            <path d="M 110 115 L 360 215 L 510 290"/>
+          </g>
+
+          <!-- The River Thames -->
+          <path class="river-thames-border" d="M 0 385 Q 160 375, 240 345 T 410 285 T 590 315 T 800 325" fill="none"/>
+          <path class="river-thames" d="M 0 385 Q 160 375, 240 345 T 410 285 T 590 315 T 800 325" fill="none"/>
+          <text x="355" y="302" class="river-label">RIVER THAMES</text>
+
+          <!-- Famous Bridges -->
+          <g class="map-bridges" aria-hidden="true">
+            <line x1="255" y1="322" x2="270" y2="356"/>
+            <line x1="340" y1="282" x2="350" y2="318"/>
+            <line x1="455" y1="272" x2="455" y2="310"/>
+            <line x1="560" y1="292" x2="552" y2="332"/>
+          </g>
+
+          <!-- District Labels -->
+          <g class="district-labels" aria-hidden="true">
+            <text x="245" y="65">CAMDEN TOWN</text>
+            <text x="275" y="185">WEST END &amp; SOHO</text>
+            <text x="485" y="190">CITY OF LONDON</text>
+            <text x="675" y="140">BETHNAL GREEN</text>
+            <text x="685" y="275">EAST END DOCKS</text>
+            <text x="235" y="425">WESTMINSTER</text>
+            <text x="435" y="385">WATERLOO &amp; LAMBETH</text>
+          </g>
+
+          <!-- Famous Landmarks (Non-shelter reference points) -->
+          <g class="map-landmarks" aria-hidden="true">
+            <g transform="translate(475, 232)">
+              <circle r="4" class="landmark-dot"/>
+              <text x="8" y="4" class="landmark-text">St Paul’s Cathedral</text>
+            </g>
+            <g transform="translate(262, 342)">
+              <circle r="4" class="landmark-dot"/>
+              <text x="8" y="14" class="landmark-text">Big Ben</text>
+            </g>
+            <g transform="translate(556, 315)">
+              <circle r="4" class="landmark-dot"/>
+              <text x="8" y="14" class="landmark-text">Tower Bridge</text>
+            </g>
+          </g>
+
+          <!-- Animated Searchlight Beams (Visible during Air Raid Alert) -->
+          <g id="searchlights-layer" class="searchlights-layer" aria-hidden="true">
+            <polygon points="150,500 40,0 130,0" class="searchlight-beam beam-1"/>
+            <polygon points="620,500 490,0 590,0" class="searchlight-beam beam-2"/>
+            <circle cx="290" cy="140" r="55" fill="url(#searchlight-grad)" class="searchlight-spot"/>
+          </g>
+
+          <!-- Dynamic Walking Route Line -->
+          <g id="route-layer" aria-hidden="true">
+            <line id="route-line-shadow" x1="475" y1="232" x2="520" y2="195" class="route-line-shadow"/>
+            <line id="route-line" x1="475" y1="232" x2="520" y2="195" class="route-line"/>
+          </g>
+
+          <!-- Shelter Markers Layer (Populated by JavaScript) -->
+          <g id="shelter-markers-layer"></g>
+
+          <!-- User "Citizen Location" Marker -->
+          <g id="citizen-marker" transform="translate(475, 232)" class="citizen-marker">
+            <circle r="18" class="citizen-pulse"/>
+            <circle r="9" class="citizen-pin"/>
+            <circle r="3.5" class="citizen-pin-center"/>
+            <rect x="-48" y="-34" width="96" height="20" rx="4" class="citizen-label-bg"/>
+            <text x="0" y="-20" text-anchor="middle" class="citizen-label-text">YOU ARE HERE</text>
+          </g>
+        </svg>
+
+        <!-- Map Legend -->
+        <div class="map-legend" aria-label="Map Legend">
+          <span class="legend-item"><span class="legend-swatch swatch-citizen"></span> You (Citizen)</span>
+          <span class="legend-item"><span class="legend-swatch swatch-tube"></span> Tube Station (Deep)</span>
+          <span class="legend-item"><span class="legend-swatch swatch-public"></span> Public Street Shelter</span>
+          <span class="legend-item"><span class="legend-swatch swatch-anderson"></span> Anderson (Garden)</span>
+          <span class="legend-item"><span class="legend-swatch swatch-morrison"></span> Morrison (Indoor)</span>
+        </div>
+      </div>
+
+      <!-- Nearest Shelter Route Dashboard & Evacuation Countdown Timer -->
+      <div class="route-dashboard" aria-labelledby="route-dashboard-heading">
+        <div class="route-summary">
+          <p class="route-eyebrow">NEAREST AVAILABLE SHELTER DISPATCH</p>
+          <h3 id="route-dashboard-heading">Aldwych Underground Station</h3>
+          <p id="route-shelter-desc" class="route-desc">Deep-level Tube platform 40 feet below street level. Protected against direct hits.</p>
+          <div class="route-metrics">
+            <div class="metric-box">
+              <span class="metric-label">Distance</span>
+              <strong id="metric-distance" class="metric-value">340 m (372 yds)</strong>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Walking Time</span>
+              <strong id="metric-time" class="metric-value">2 mins 50 secs</strong>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">Space Left</span>
+              <strong id="metric-capacity" class="metric-value">380 / 1,500 spaces</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="timer-card">
+          <p class="timer-title">EVACUATION WALK TIMER</p>
+          <div id="countdown-display" class="countdown-display" aria-live="off">02:50</div>
+          <p id="timer-caption" class="timer-caption">Walk briskly — do not run in the Blackout!</p>
+          <div class="timer-actions">
+            <button type="button" id="start-timer-btn" class="btn btn-small">Start Walk Timer</button>
+            <button type="button" id="reset-timer-btn" class="btn btn-small btn-outline">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Shelter Directory & 1940s Evacuation Checklist -->
+    <aside class="sidebar-panel" aria-label="Shelter Directory and Wartime Checklist">
+      <!-- Shelter Cards & Type Filter -->
+      <section class="directory-card" aria-labelledby="directory-heading">
+        <div class="directory-header">
+          <h2 id="directory-heading">London Air Raid Shelters</h2>
+          <p class="panel-subtitle">Sorted automatically from <strong>closest</strong> to <strong>furthest</strong> from your position.</p>
+        </div>
+
+        <search aria-label="Filter shelters by type">
+          <div class="filter-bar">
+            <label for="shelter-type-filter">Shelter Type:</label>
+            <select id="shelter-type-filter">
+              <option value="all">All Shelter Types (8)</option>
+              <option value="Tube Station">London Underground Tube Stations</option>
+              <option value="Public Trench & Street">Public Street &amp; Trench Shelters</option>
+              <option value="Anderson Shelter">Anderson Garden Shelters</option>
+              <option value="Morrison Shelter">Morrison Indoor Table Shelters</option>
+            </select>
+          </div>
+        </search>
+
+        <ul id="shelter-list" class="shelter-list" role="list"></ul>
+      </section>
+
+      <!-- 1940s Wartime Gas Mask & Evacuation Checklist -->
+      <section class="checklist-card" aria-labelledby="checklist-heading">
+        <h2 id="checklist-heading">1940s Citizen Evacuation Kit</h2>
+        <p class="panel-subtitle">Before heading to the shelter, tick off your essential wartime supplies:</p>
+
+        <div class="checklist-progress-wrap">
+          <label for="kit-progress" id="kit-progress-label">Kit Readiness: 2 of 6 packed</label>
+          <progress id="kit-progress" max="6" value="2"></progress>
+        </div>
+
+        <div class="checklist-group" role="group" aria-labelledby="checklist-heading">
+          <div class="checklist-item">
+            <input type="checkbox" id="item-gasmask" class="kit-checkbox" checked>
+            <label for="item-gasmask">
+              <strong>Gas Mask in Cardboard Box</strong>
+              <span>Carry on your shoulder strap at all times</span>
+            </label>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" id="item-idcard" class="kit-checkbox" checked>
+            <label for="item-idcard">
+              <strong>National Registration Identity Card</strong>
+              <span>Needed by Air Raid Wardens at shelter doors</span>
+            </label>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" id="item-ration" class="kit-checkbox">
+            <label for="item-ration">
+              <strong>Ministry of Food Ration Book</strong>
+              <span>Keep safe for weekly bacon, butter, sugar &amp; tea</span>
+            </label>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" id="item-torch" class="kit-checkbox">
+            <label for="item-torch">
+              <strong>Blackout Torch (Dimmed with Tissue Paper)</strong>
+              <span>Point downwards only — never shine into the sky!</span>
+            </label>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" id="item-blanket" class="kit-checkbox">
+            <label for="item-blanket">
+              <strong>Wool Blanket &amp; Flask of Sweet Tea</strong>
+              <span>Underground shelters can get very cold overnight</span>
+            </label>
+          </div>
+
+          <div class="checklist-item">
+            <input type="checkbox" id="item-whistle" class="kit-checkbox">
+            <label for="item-whistle">
+              <strong>A.R.P. Whistle &amp; First Aid Tin</strong>
+              <span>Helps rescue teams locate people after a raid</span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="poster-footer">
+    <p><strong>ISSUED BY THE MINISTRY OF HOME SECURITY (1940)</strong> &bull; Year 6 History &amp; Computing Project: <em>“What if Smartphone Technology Existed During the Blitz?”</em></p>
+  </footer>
+
+  <!-- Modal Dialog: Shelter Historical Fact File -->
+  <dialog id="shelter-modal" closedby="any" aria-labelledby="modal-shelter-title">
+    <form method="dialog" class="dialog-content">
+      <p id="modal-shelter-type" class="dialog-eyebrow">SHELTER FACT FILE</p>
+      <h2 id="modal-shelter-title">Shelter Name</h2>
+      <p id="modal-shelter-history" class="dialog-body"></p>
+      <dl class="dialog-specs">
+        <div>
+          <dt>Protection Level</dt>
+          <dd id="modal-shelter-protection"></dd>
+        </div>
+        <div>
+          <dt>Depth / Structure</dt>
+          <dd id="modal-shelter-depth"></dd>
+        </div>
+        <div>
+          <dt>Wartime Fact</dt>
+          <dd id="modal-shelter-fact"></dd>
+        </div>
+      </dl>
+      <div class="dialog-actions">
+        <button type="submit" value="close" class="btn btn-secondary">Close Dossier</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal Dialog: Year 6 Project Guide ("How This App Works") -->
+  <dialog id="project-guide-modal" closedby="any" aria-labelledby="guide-modal-title">
+    <form method="dialog" class="dialog-content">
+      <p class="dialog-eyebrow">YEAR 6 COMPUTING &amp; HISTORY GUIDE</p>
+      <h2 id="guide-modal-title">How Does the WWII Shelter Finder Work?</h2>
+      <div class="guide-steps">
+        <article class="guide-step">
+          <h3>1. Mapping Coordinates (X and Y Grid)</h3>
+          <p>Just like a modern GPS app uses latitude and longitude, our 1940s London map uses an <code>(x, y)</code> coordinate grid from <code>0</code> to <code>800</code> across and <code>0</code> to <code>500</code> down. Every shelter has its own coordinates stored in JavaScript.</p>
+        </article>
+        <article class="guide-step">
+          <h3>2. Finding the Nearest Shelter (Pythagoras’ Theorem)</h3>
+          <p>When you click on the map, the computer measures the horizontal distance ($\Delta x$) and vertical distance ($\Delta y$) to every shelter and calculates the straight-line distance using the formula: <code>distance = Math.hypot(shelter.x - user.x, shelter.y - user.y)</code>. Then it sorts the list from smallest distance to largest!</p>
+        </article>
+        <article class="guide-step">
+          <h3>3. Why Would This Have Mattered in 1940?</h3>
+          <p>During the <strong>Blitz</strong> (September 1940 – May 1941), German planes bombed London for 57 nights in a row. In the pitch-black <strong>Blackout</strong> (with streetlights turned off), people visiting unfamiliar streets often didn’t know where the nearest shelter was or if a Tube station was already full. An app with a dimmed <strong>Blackout Mode</strong> and live capacity numbers could have guided thousands of families to safety in minutes!</p>
+        </article>
+      </div>
+      <div class="dialog-actions">
+        <button type="submit" value="close" class="btn btn-emergency">Back to the Map</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
